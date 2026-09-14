@@ -1,6 +1,5 @@
 #version 330 compatibility
 #include "lib/distort.glsl"
-#include "utils.glsl"
 
 uniform sampler2D colortex0;
 uniform sampler2D colortex1;
@@ -30,6 +29,7 @@ const vec3 skylightColor = vec3(0.05, 0.15, 0.3);
 const vec3 sunlightColor = vec3(1.0);
 const vec3 ambientColor = vec3(0.1);
 
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position);
 vec3 getShadow(vec3 shadowScreenPos);
 vec4 getNoise(vec2 coord);
 vec3 getSoftShadow(vec4 shadowClipPos);
@@ -67,6 +67,11 @@ void main() {
 
   color.rgb *= blocklight + skylight + ambient + sunlight;
 }
+
+vec3 projectAndDivide(mat4 projectionMatrix, vec3 position) {
+    vec4 homPos = projectionMatrix * vec4(position, 1.0);
+    return homPos.xyz / homPos.w;
+  }
 
 vec3 getShadow(vec3 shadowScreenPos){
     float transparentShadow = step(shadowScreenPos.z, texture(shadowtex0, shadowScreenPos.xy).r);
@@ -115,8 +120,8 @@ vec3 getSoftShadow(vec4 shadowClipPos){
       return shadowAccum / float(samples);
   }
 
-vec4 getNoise(vec2 coord) {
-    ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight));
-    ivec2 noiseCoord = screenCoord % 64;
-    return texelFetch(noisetex, noiseCoord, 0);
-}
+  vec4 getNoise(vec2 coord) {
+      ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight));
+      ivec2 noiseCoord = screenCoord % 64;
+      return texelFetch(noisetex, noiseCoord, 0);
+    }

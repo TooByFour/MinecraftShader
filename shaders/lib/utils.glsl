@@ -7,3 +7,9 @@ float getLinearDepth(float depth) {
     float ndc = depth * 2.0 - 1.0;
     return (2.0 * near * far) / (far + near - ndc * (far - near));
 }
+
+vec4 getNoise(vec2 coord) {
+    ivec2 screenCoord = ivec2(coord * vec2(viewWidth, viewHeight));
+    ivec2 noiseCoord = screenCoord % 64;
+    return texelFetch(noisetex, noiseCoord, 0);
+}
